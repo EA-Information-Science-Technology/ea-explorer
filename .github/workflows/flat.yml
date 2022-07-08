@@ -34,42 +34,38 @@ jobs:
           neo4j-uri: ${{secrets.NEO4J_URI}}
           filename: 'posts.json'
           cypher-query: >
-            CALL apoc.periodic.iterate(
-                'UNWIND $value.data.posts.results AS post
-                RETURN post',
-                'MERGE (p:Post {_id: post._id})
-                ON CREATE SET 
-                    p.postedAt = DateTime(post.postedAt),
-                    p.question = toBoolean(p.question),
-                    p.meta = post.meta
+            UNWIND $value.data.posts.results AS post
+            MERGE (p:Post {_id: post._id})
+            ON CREATE SET 
+                p.postedAt = DateTime(post.postedAt),
+                p.question = toBoolean(p.question),
+                p.meta = post.meta
+            SET
+                p.pageUrl = post.pageUrl,
+                p.shortform = toBoolean(post.shortform),
+                p.modifiedAt = DateTime(post.modifiedAt),
+                p.title = post.title,
+                p.lastCommentedAt = DateTime(post.lastCommentedAt),
+                p.htmlBody = post.htmlBody,
+                p.tagRelevance = apoc.text.toCypher(post.tagRelevance),
+                p.voteCount = post.voteCount,
+                p.baseScore = post.baseScore,
+                p.extendedScore = post.extendedScore,
+                p.score = post.score,
+                p.pingbacks = apoc.text.toCypher(post.pingbacks)
+            WITH post, p
+                UNWIND post.tags as tag
+                MERGE (t:Tag {_id: tag._id})
+                ON CREATE SET  
+                    t.createdAt = DateTime(tag.createdAt),
+                    t.slug = tag.slug
                 SET
-                    p.pageUrl = post.pageUrl,
-                    p.shortform = toBoolean(post.shortform),
-                    p.modifiedAt = DateTime(post.modifiedAt),
-                    p.title = post.title,
-                    p.lastCommentedAt = DateTime(post.lastCommentedAt),
-                    p.htmlBody = post.htmlBody,
-                    p.tagRelevance = apoc.text.toCypher(post.tagRelevance),
-                    p.voteCount = post.voteCount,
-                    p.baseScore = post.baseScore,
-                    p.extendedScore = post.extendedScore,
-                    p.score = post.score,
-                    p.pingbacks = apoc.text.toCypher(post.pingbacks)
-                WITH post, p
-                    UNWIND post.tags as tag
-                    MERGE (t:Tag {_id: tag._id})
-                    ON CREATE SET  
-                        t.createdAt = DateTime(tag.createdAt),
-                        t.slug = tag.slug
-                    SET
-                        t.name = tag.name,
-                        t.descriptionHtmlWithToc = tag.descriptionHtmlWithToc,
-                        t.postCount = tag.postCount,
-                        t.lastVisitedAt = DateTime(tag.lastVisitedAt)
-                    MERGE (t)-[:APPLIES_TO]->(p)
-                WITH post, p
-                    UNWIND post.pingbacks.Posts AS pingbackPostId
-                    MERGE (pb:Post {_id: pingbackPostId}) 
-                    MERGE (pb)-[:IS_PINGBACK_OF]->(p)',
-                {batchSize:50, parallel:false}
-            )  
+                    t.name = tag.name,
+                    t.descriptionHtmlWithToc = tag.descriptionHtmlWithToc,
+                    t.postCount = tag.postCount,
+                    t.lastVisitedAt = DateTime(tag.lastVisitedAt)
+                MERGE (t)-[:APPLIES_TO]->(p)
+            WITH post, p
+                UNWIND post.pingbacks.Posts AS pingbackPostId
+                MERGE (pb:Post {_id: pingbackPostId}) 
+                MERGE (pb)-[:IS_PINGBACK_OF]->(p)
