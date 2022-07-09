@@ -72,8 +72,4 @@ jobs:
             WITH post, p
                 UNWIND post.pingbacks.Posts AS pingbackPostId
                 MERGE (pb:Post {_id: pingbackPostId}) 
-                MERGE (p)-[:MENTIONED_BY]->(pb)
-            WITH post, p
-                UNWIND post.pingbacks.Posts AS pingbackPostId
-                MERGE (pb:Post {_id: pingbackPostId}) 
-                MERGE (pb)-[:IS_PINGBACK_OF]->(p)
+                MERGE (p)-[:MENTIONED_IN]->(pb)
