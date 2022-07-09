@@ -48,28 +48,21 @@ const driver = neo4j.driver(
   neo4j.auth.basic("neo4j", "KJ9SMZbeOY1vr3Rmth_TbJc3KpSGgEgrQUVLarlP0dE")
 );
 
-const neoSchema = new Neo4jGraphQL({ typeDefs, driver });
+const sessionFactory = () =>
+  driver.session({ defaultAccessMode: neo4j.session.READ });
 
-const apolloServer = new ApolloServer({
-  schema: neoSchema.schema,
-  playground: true,
-  introspection: true,
-  cache: "bounded",
-  persistedQueries: false,
-  plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
-});
+// We create a async function here until "top level await" has landed
+// so we can use async/await
+async function main() {
+  const readonly = true; // We don't want to expose mutations in this case
+  const typeDefs = await toGraphQLTypeDefs(sessionFactory, readonly);
 
-const startServer = apolloServer.start();
+  const neoSchema = new Neo4jGraphQL({ typeDefs, driver });
 
-export default async function handler(req, res) {
-  await startServer;
-  await apolloServer.createHandler({
-    path: "/api/graphql",
-  })(req, res);
+  const server = new ApolloServer({
+    schema: await neoSchema.getSchema(),
+    context: ({ req }) => ({ req }),
+  });
 }
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+main();
