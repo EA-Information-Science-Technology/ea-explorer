@@ -27,7 +27,7 @@ jobs:
           http_url: https://forum.effectivealtruism.org/graphql?query={%20posts(input:%20{terms:%20{orderBy:%20%22postedAt%22}})%20{%20results%20{%20_id%20postedAt%20modifiedAt%20title%20question%20meta%20lastCommentedAt%20pageUrl%20htmlBody%20shortform%20tagRelevance%20voteCount%20baseScore%20extendedScore%20score%20pingbacks%20tags%20{%20createdAt%20name%20slug%20descriptionHtmlWithToc%20postCount%20lastVisitedAt%20_id%20}%20}%20}%20}
           downloaded_filename: posts.json # The http_url gets saved and renamed in our repository. Example: data.json, data.csv, image.png
       - name: Neo4j import
-        uses: quinn-p-mchugh/flat-graph@v1.2
+        uses: quinn-p-mchugh/flat-graph@main
         with:
           neo4j-user: ${{secrets.NEO4J_USER}}
           neo4j-password: ${{secrets.NEO4J_PASSWORD}}
