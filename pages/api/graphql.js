@@ -54,6 +54,8 @@ const apolloServer = new ApolloServer({
   schema: neoSchema.schema,
   playground: true,
   introspection: true,
+  cache: "bounded",
+  persistedQueries: false,
   plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
 });
 
