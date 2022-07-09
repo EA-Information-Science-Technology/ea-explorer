@@ -51,12 +51,10 @@ jobs:
                 p.modifiedAt = DateTime(post.modifiedAt),
                 p.title = post.title,
                 p.lastCommentedAt = DateTime(post.lastCommentedAt),
-                p.tagRelevance = apoc.text.toCypher(post.tagRelevance),
                 p.voteCount = post.voteCount,
                 p.baseScore = post.baseScore,
                 p.extendedScore = post.extendedScore,
-                p.score = post.score,
-                p.pingbacks = apoc.text.toCypher(post.pingbacks)
+                p.score = post.score
             WITH post, p
                 UNWIND post.tags as tag
                 MERGE (t:Tag {_id: tag._id})
@@ -68,7 +66,7 @@ jobs:
                     t.name = tag.name,
                     t.postCount = tag.postCount,
                     t.lastVisitedAt = DateTime(tag.lastVisitedAt)
-                MERGE (t)-[:APPLIES_TO]->(p)
+                MERGE (t)-[:APPLIES_TO {tagRelevance: post.tagRelevance[tag._id]}]->(p)
             WITH post, p
                 UNWIND post.pingbacks.Posts AS pingbackPostId
                 MERGE (pb:Post {_id: pingbackPostId}) 
