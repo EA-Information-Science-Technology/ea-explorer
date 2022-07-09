@@ -34,7 +34,7 @@ jobs:
           neo4j-uri: ${{secrets.NEO4J_URI}}
           filename: 'posts.json'
           cypher-run-method: 'apoc.periodic.iterate'
-          apoc-iterate-batchSize: 5
+          apoc-iterate-batchSize: 1
           apoc-iterate-cypherIterate: >
             UNWIND $value.data.posts.results AS post 
             RETURN post
