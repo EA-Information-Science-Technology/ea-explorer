@@ -43,8 +43,8 @@ const typeDefs = gql`
 `;
 
 const driver = neo4j.driver(
-  "neo4j+s://bd777313.databases.neo4j.io",
-  neo4j.auth.basic("neo4j", "KJ9SMZbeOY1vr3Rmth_TbJc3KpSGgEgrQUVLarlP0dE")
+  process.env.NEO4J_URI,
+  neo4j.auth.basic(process.env.NEO4J_USER, process.env.NEO4J_PASSWORD)
 );
 
 export default async function handler(req, res) {
