@@ -1,7 +1,6 @@
 import { gql, ApolloServer } from "apollo-server-micro";
-import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
-import neo4j from "neo4j-driver";
 import { Neo4jGraphQL } from "@neo4j/graphql";
+import neo4j from "neo4j-driver";
 
 const typeDefs = gql`
   type Post @exclude(operations: [CREATE, UPDATE, DELETE]) {
@@ -19,7 +18,7 @@ const typeDefs = gql`
     baseScore: Int
     extendedScore: Int
     score: Float
-    mentioned_in: [Post]
+    mentioned_in: [Post!]!
       @relationship(
         type: "MENTIONED_IN"
         properties: "MentionedIn"
@@ -35,7 +34,7 @@ const typeDefs = gql`
     name: String
     postCount: Int
     lastVisitedAt: DateTime
-    applies_to: [Post] @relationship(type: "APPLIES_TO", direction: OUT)
+    applies_to: [Post!]! @relationship(type: "APPLIES_TO", direction: OUT)
   }
 
   interface MentionedIn @relationshipProperties {
@@ -48,21 +47,33 @@ const driver = neo4j.driver(
   neo4j.auth.basic("neo4j", "KJ9SMZbeOY1vr3Rmth_TbJc3KpSGgEgrQUVLarlP0dE")
 );
 
-const sessionFactory = () =>
-  driver.session({ defaultAccessMode: neo4j.session.READ });
-
-// We create a async function here until "top level await" has landed
-// so we can use async/await
-async function main() {
-  const readonly = true; // We don't want to expose mutations in this case
-  const typeDefs = await toGraphQLTypeDefs(sessionFactory, readonly);
+export default async function handler(req, res) {
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    "https://studio.apollographql.com"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  if (req.method === "OPTIONS") {
+    res.end();
+    return false;
+  }
 
   const neoSchema = new Neo4jGraphQL({ typeDefs, driver });
-
-  const server = new ApolloServer({
+  const apolloServer = new ApolloServer({
     schema: await neoSchema.getSchema(),
-    context: ({ req }) => ({ req }),
   });
+  await apolloServer.start();
+  await apolloServer.createHandler({
+    path: "/api/graphql",
+  })(req, res);
 }
 
-main();
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};

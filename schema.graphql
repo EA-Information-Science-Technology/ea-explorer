@@ -1,0 +1,23 @@
+type Post {
+	_id: String!
+	htmlBody: String
+	lastCommentedAt: DateTime
+	mentionedInPosts: [Post!]! @relationship(type: "MENTIONED_IN", direction: OUT)
+	meta: Boolean
+	modifiedAt: DateTime
+	pageUrl: String
+	postedAt: DateTime
+	postsMentionedIn: [Post!]! @relationship(type: "MENTIONED_IN", direction: IN)
+	shortform: Boolean
+	tagsAppliesTo: [Tag!]! @relationship(type: "APPLIES_TO", direction: IN, properties: "AppliesToProperties")
+	title: String
+}
+
+type Tag {
+	_id: String!
+	appliesToPosts: [Post!]! @relationship(type: "APPLIES_TO", direction: OUT, properties: "AppliesToProperties")
+	createdAt: DateTime!
+	descriptionHtmlWithToc: String!
+	name: String!
+	slug: String!
+}
