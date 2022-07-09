@@ -27,14 +27,18 @@ jobs:
           http_url: https://forum.effectivealtruism.org/graphql?query={%20posts(input:%20{terms:%20{orderBy:%20%22postedAt%22}})%20{%20results%20{%20_id%20postedAt%20modifiedAt%20title%20question%20meta%20lastCommentedAt%20pageUrl%20htmlBody%20shortform%20tagRelevance%20voteCount%20baseScore%20extendedScore%20score%20pingbacks%20tags%20{%20createdAt%20name%20slug%20descriptionHtmlWithToc%20postCount%20lastVisitedAt%20_id%20}%20}%20}%20}
           downloaded_filename: posts.json # The http_url gets saved and renamed in our repository. Example: data.json, data.csv, image.png
       - name: Neo4j import
-        uses: johnymontana/flat-graph@v1.2
+        uses: quinn-p-mchugh/flat-graph@v1.2
         with:
           neo4j-user: ${{secrets.NEO4J_USER}}
           neo4j-password: ${{secrets.NEO4J_PASSWORD}}
           neo4j-uri: ${{secrets.NEO4J_URI}}
           filename: 'posts.json'
-          cypher-query: >
-            UNWIND $value.data.posts.results AS post
+          cypher-run-method: 'apoc.periodic.iterate'
+          apoc-iterate-batch-size: 50
+          apoc-iterate-cypher-iterate: >
+            UNWIND $value.data.posts.results AS post 
+            RETURN post
+          apoc-iterate-cypher-action: >
             MERGE (p:Post {_id: post._id})
             ON CREATE SET 
                 p.postedAt = DateTime(post.postedAt),
@@ -65,6 +69,10 @@ jobs:
                     t.postCount = tag.postCount,
                     t.lastVisitedAt = DateTime(tag.lastVisitedAt)
                 MERGE (t)-[:APPLIES_TO]->(p)
+            WITH post, p
+                UNWIND post.pingbacks.Posts AS pingbackPostId
+                MERGE (pb:Post {_id: pingbackPostId}) 
+                MERGE (p)-[:MENTIONED_BY]->(pb)
             WITH post, p
                 UNWIND post.pingbacks.Posts AS pingbackPostId
                 MERGE (pb:Post {_id: pingbackPostId}) 
