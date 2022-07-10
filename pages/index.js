@@ -7,17 +7,23 @@ const NoSSRForceGraph = dynamic(() => import("../lib/NoSSRForceGraph"), {
 });
 
 const mostRecentQuery = gql`
-  {
+  query {
     posts(options: { limit: 1000, sort: { postedAt: DESC } }) {
       __typename
-      id
-      url
+      _id
+      pageUrl
       title
       postedAt
-      tags {
+      mentioned_in {
+        _id
+        title
         __typename
-        name
       }
+    }
+    tags(options: { limit: 1000, sort: { _id: ASC } }) {
+      __typename
+      _id
+      name
     }
   }
 `;
@@ -40,7 +46,7 @@ const formatData = (data) => {
       __typename: p.__typename,
     });
 
-    p.applies_to.forEach((t) => {
+    /*p.applies_to.forEach((t) => {
       nodes.push({
         id: t._id,
         name: t.name,
@@ -62,7 +68,7 @@ const formatData = (data) => {
         target: pb._id,
       });
     });
-  });
+  });*/
 
   return {
     // nodes may be duplicated so use lodash's uniqBy to filter out duplicates
