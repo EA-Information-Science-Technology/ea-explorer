@@ -1,5 +1,6 @@
 import { gql, ApolloServer } from "apollo-server-micro";
 import { Neo4jGraphQL } from "@neo4j/graphql";
+import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
 import neo4j from "neo4j-driver";
 
 const typeDefs = gql`
@@ -65,6 +66,9 @@ export default async function handler(req, res) {
   const neoSchema = new Neo4jGraphQL({ typeDefs, driver });
   const apolloServer = new ApolloServer({
     schema: await neoSchema.getSchema(),
+    playground: true,
+    introspection: true,
+    plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
   });
   await apolloServer.start();
   await apolloServer.createHandler({
