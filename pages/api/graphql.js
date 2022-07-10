@@ -44,8 +44,8 @@ const typeDefs = gql`
 `;
 
 const driver = neo4j.driver(
-  process.env.NEO4J_URI,
-  neo4j.auth.basic(process.env.NEO4J_USER, process.env.NEO4J_PASSWORD)
+  "bolt+s://bd777313.databases.neo4j.io",
+  neo4j.auth.basic("neo4j", "uranium-lima-tripod-tavern-modem-3204")
 );
 
 export default async function handler(req, res) {

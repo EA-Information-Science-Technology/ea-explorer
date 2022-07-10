@@ -8,7 +8,7 @@ const NoSSRForceGraph = dynamic(() => import("../lib/NoSSRForceGraph"), {
 
 const mostRecentQuery = gql`
   query {
-    posts(options: { limit: 1000, sort: { postedAt: DESC } }) {
+    posts(options: { limit: 10000, sort: { postedAt: ASC } }) {
       __typename
       _id
       pageUrl
@@ -16,7 +16,6 @@ const mostRecentQuery = gql`
       postedAt
       mentioned_in {
         _id
-        title
         __typename
       }
     }
@@ -24,9 +23,15 @@ const mostRecentQuery = gql`
       __typename
       _id
       name
+      applies_to {
+        _id
+        __typename
+      }
     }
   }
 `;
+
+const _ = require("lodash");
 
 const formatData = (data) => {
   // this could be generalized but let's leave that for another time
@@ -45,31 +50,39 @@ const formatData = (data) => {
       url: p.url,
       __typename: p.__typename,
     });
-  });
-
-  /*p.applies_to.forEach((t) => {
-      nodes.push({
-        id: t._id,
-        name: t.name,
-        __typename: t.__typename,
-      });
-      links.push({
-        source: t._id,
-        target: p._id,
-      });
-    });
 
     p.mentioned_in.forEach((pb) => {
       nodes.push({
-        id: t._id,
-        __typename: t.__typename,
+        id: pb._id,
+        title: pb.title,
+        __typename: pb.__typename,
       });
-      links.push({
-        source: p._id,
-        target: pb._id,
-      });
+
+      if (nodes.some((post) => post.id === p._id)) {
+        links.push({
+          source: p._id,
+          target: pb._id,
+        });
+      }
     });
-  });*/
+  });
+
+  data.tags.forEach((t) => {
+    nodes.push({
+      id: t._id,
+      name: t.name,
+      __typename: t.__typename,
+    });
+
+    t.applies_to.forEach((p) => {
+      if (nodes.some((post) => post.id === p._id)) {
+        links.push({
+          source: t._id,
+          target: p._id,
+        });
+      }
+    });
+  });
 
   return {
     // nodes may be duplicated so use lodash's uniqBy to filter out duplicates
