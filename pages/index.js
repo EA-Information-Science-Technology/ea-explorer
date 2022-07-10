@@ -45,8 +45,9 @@ const formatData = (data) => {
       url: p.url,
       __typename: p.__typename,
     });
+  });
 
-    /*p.applies_to.forEach((t) => {
+  /*p.applies_to.forEach((t) => {
       nodes.push({
         id: t._id,
         name: t.name,
