@@ -1,11 +1,5 @@
-import dynamic from "next/dynamic";
 import { useQuery, gql } from "@apollo/client";
-import { useState } from "react";
-
-const NoSSRForceGraph = dynamic(() => import("../lib/NoSSRForceGraph"), {
-  ssr: false,
-});
-
+import { useState, useMemo, useCallback } from "react";
 const mostRecentQuery = gql`
   query {
     posts(options: { limit: 10000, sort: { postedAt: ASC } }) {
@@ -47,7 +41,7 @@ const formatData = (data) => {
     nodes.push({
       id: p._id,
       title: p.title,
-      url: p.url,
+      url: p.pageUrl,
       __typename: p.__typename,
     });
 
@@ -98,14 +92,5 @@ export default function Home() {
     onCompleted: (data) => setGraphData(formatData(data)),
   });
 
-  return (
-    <NoSSRForceGraph
-      graphData={graphData}
-      nodeLabel={(node) => {
-        return node.id;
-      }}
-      nodeAutoColorBy={"__typename"}
-      nodeRelSize={8}
-    />
-  );
+  return <HighlightGraph graphData={graphData} />;
 }
