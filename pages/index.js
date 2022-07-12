@@ -1,5 +1,11 @@
+import dynamic from "next/dynamic";
 import { useQuery, gql } from "@apollo/client";
 import { useState, useMemo, useCallback } from "react";
+
+const HighlightGraph = dynamic(() => import("../components/NoSSRForceGraph"), {
+  ssr: false,
+});
+
 const mostRecentQuery = gql`
   query {
     posts(options: { limit: 10000, sort: { postedAt: ASC } }) {

@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import { useState, useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState } from "react";
 
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
   ssr: false,
