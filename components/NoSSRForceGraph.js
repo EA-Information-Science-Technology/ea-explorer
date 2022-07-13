@@ -77,6 +77,7 @@ const HighlightGraph = ({ graphData }) => {
     <ForceGraph2D
       graphData={data}
       nodeRelSize={NODE_R}
+      nodeAutoColorBy="__typename"
       autoPauseRedraw={false}
       linkWidth={(link) => (highlightLinks.has(link) ? 5 : 1)}
       linkDirectionalParticles={4}
