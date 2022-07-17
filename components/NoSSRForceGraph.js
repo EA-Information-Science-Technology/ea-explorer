@@ -77,6 +77,14 @@ const HighlightGraph = ({ graphData }) => {
     <ForceGraph2D
       graphData={data}
       nodeRelSize={NODE_R}
+      nodeVal="numLinks"
+      nodeLabel={(node) => {
+        if (node.__typename === "Post") {
+          return node.title;
+        } else if (node.__typename === "Tag") {
+          return node.name;
+        }
+      }}
       nodeAutoColorBy="__typename"
       autoPauseRedraw={false}
       linkWidth={(link) => (highlightLinks.has(link) ? 5 : 1)}
