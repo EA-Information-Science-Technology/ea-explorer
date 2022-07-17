@@ -84,6 +84,10 @@ const formatData = (data) => {
     });
   });
 
+  nodes.forEach((node) => {
+    node.numLinks = links.filter((link) => node.id === link.source).length;
+  });
+
   return {
     // nodes may be duplicated so use lodash's uniqBy to filter out duplicates
     nodes: _.uniqBy(nodes, "id"),
