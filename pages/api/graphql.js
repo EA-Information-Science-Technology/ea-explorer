@@ -30,7 +30,7 @@ const typeDefs = gql`
   type Tag @exclude(operations: [CREATE, UPDATE, DELETE]) {
     _id: ID
     createdAt: DateTime
-    descriptionHtmlWithToc: String
+    description: String
     slug: String
     name: String
     postCount: Int
