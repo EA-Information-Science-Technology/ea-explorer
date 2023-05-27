@@ -2,7 +2,7 @@ import dynamic from "next/dynamic";
 import { useQuery, gql } from "@apollo/client";
 import { useState, useMemo, useCallback } from "react";
 
-const HighlightGraph = dynamic(() => import("../components/NoSSRForceGraph"), {
+const Graph = dynamic(() => import("../components/ForceGraphTest"), {
   ssr: false,
 });
 
@@ -102,5 +102,5 @@ export default function Home() {
     onCompleted: (data) => setGraphData(formatData(data)),
   });
 
-  return <HighlightGraph graphData={graphData} />;
+  return <Graph graphData={graphData} />;
 }

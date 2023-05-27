@@ -1,11 +1,13 @@
+import { defaultFieldResolver } from "graphql";
 import dynamic from "next/dynamic";
-import { useMemo, useCallback, useState } from "react";
+import { useMemo, useCallback, useState, useEffect, useRef } from "react";
 
 const ForceGraph3D = dynamic(() => import("react-force-graph-3d"), {
   ssr: false,
 });
 
 const NODE_R = 8;
+
 const HighlightGraph = ({ graphData }) => {
   const crossLinkNodes = () => {
     // cross-link node objects
@@ -26,6 +28,12 @@ const HighlightGraph = ({ graphData }) => {
     return graphData;
   };
   const data = useMemo(() => crossLinkNodes(graphData), [graphData]);
+
+  const fgRef = useRef(null);
+  useEffect(() => {
+    const fg = fgRef.current;
+    fg.d3Force("link").distance(100);
+  }, []);
 
   const [highlightNodes, setHighlightNodes] = useState(new Set());
   const [highlightLinks, setHighlightLinks] = useState(new Set());
@@ -75,6 +83,7 @@ const HighlightGraph = ({ graphData }) => {
 
   return (
     <ForceGraph3D
+      ref={fgRef}
       graphData={data}
       nodeRelSize={NODE_R}
       nodeVal="numLinks"
