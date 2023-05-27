@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic";
 import { useMemo, useCallback, useState } from "react";
 
-const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
+const ForceGraph3D = dynamic(() => import("react-force-graph-3d"), {
   ssr: false,
 });
 
@@ -74,10 +74,13 @@ const HighlightGraph = ({ graphData }) => {
   );
 
   return (
-    <ForceGraph2D
+    <ForceGraph3D
       graphData={data}
       nodeRelSize={NODE_R}
       nodeVal="numLinks"
+      warmupTicks={100} // For better performance
+      cooldownTicks={0} // For better performance
+      nodeResolution={1} // For better performance
       nodeLabel={(node) => {
         if (node.__typename === "Post") {
           return node.title;
